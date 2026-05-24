@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bbbd8fcf6a6eb74fad16e16cca0a072, type: 3}
+  m_Name: WeaponUpgrade_1
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponData
+  weaponName: 
+  tags: 
+  icon: {fileID: 0}
+  projectilePrefab: {fileID: 5852746230406001041, guid: 7c89de1d7dc02a046965104b5e3f8402, type: 3}
+  cooldown: 1.2
+  projectileCount: 1
+  damage: 10
+  projectileSpeed: 12
+  range: 20
+  pierce: 0
+  bounces: 0
+  upgrades: []
