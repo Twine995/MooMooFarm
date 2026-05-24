@@ -6,23 +6,29 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class EnemyBase : MonoBehaviour
 {
+    EnemyHealthBar _healthBar;
+
     [Header("Stats")]
     public float maxHealth = 30f;
     public float moveSpeed = 3.5f;
     public float contactDamage = 8f;
+    public float contactRange = 1.3f;
     public int xpValue = 1;
 
     [Header("Pooling")]
     public GameObject prefabKey;
 
-    // Public state
     public bool IsAlive { get; private set; }
 
     protected Transform _player;
     protected NavMeshAgent _agent;
     float _health;
 
-    // ── Called by WaveSpawner every time this is pulled from pool ──
+    void Awake()
+    {
+        _healthBar = GetComponentInChildren<EnemyHealthBar>(true);
+        Debug.Log("Awake — healthBar found: " + (_healthBar != null));
+    }
     public virtual void Init(Transform player)
     {
         _player = player;
@@ -32,22 +38,48 @@ public class EnemyBase : MonoBehaviour
         _agent = GetComponent<NavMeshAgent>();
         _agent.enabled = true;
         _agent.speed = moveSpeed;
+        _agent.baseOffset = 1f;
         _agent.ResetPath();
+
+        _healthBar?.Init(maxHealth);  // ← this is what was missing
     }
 
     void Update()
     {
         if (!IsAlive || _player == null) return;
+
         _agent.SetDestination(_player.position);
+        HandleContactDamage();
     }
 
+    // ── Contact damage via distance check ─────────────────
+    // Works regardless of collider type or height differences
+    void HandleContactDamage()
+    {
+        if (_player == null) return;
+
+        // Use XZ distance only — ignores height so low enemies still deal damage
+        Vector3 toPlayer = _player.position - transform.position;
+        toPlayer.y = 0f;
+        float flatDistance = toPlayer.magnitude;
+
+        if (flatDistance < contactRange)
+        {
+            _player.GetComponent<PlayerController>()
+                ?.TakeDamage(contactDamage * Time.deltaTime);
+        }
+    }
+
+    // ── Take damage ────────────────────────────────────────
     public virtual void TakeDamage(float amount)
     {
         if (!IsAlive) return;
         _health -= amount;
+        _healthBar?.OnDamaged(_health, maxHealth);
         if (_health <= 0f) Die();
     }
 
+    // ── Death ──────────────────────────────────────────────
     protected virtual void Die()
     {
         IsAlive = false;
@@ -61,14 +93,7 @@ public class EnemyBase : MonoBehaviour
 
     IEnumerator ReturnToPool()
     {
-        yield return null; // wait one frame so collisions settle
+        yield return null;
         PoolManager.Instance.Return(prefabKey, gameObject);
-    }
-
-    void OnTriggerStay(Collider other)
-    {
-        if (!IsAlive) return;
-        if (other.CompareTag("Player"))
-            other.GetComponent<PlayerController>()?.TakeDamage(contactDamage * Time.deltaTime);
     }
 }
