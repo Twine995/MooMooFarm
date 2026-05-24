@@ -195,22 +195,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 395fba00949cd9343b7c4186e3e15326, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PropScatter
-  props:
-  - shape: 3
-    scale: {x: 1.5, y: 1.2, z: 1.5}
-    count: 20
-    exclusionRadius: 14
-  - shape: 2
-    scale: {x: 0.3, y: 1.5, z: 0.3}
-    count: 40
-    exclusionRadius: 5
-  - shape: 3
-    scale: {x: 3, y: 0.6, z: 0.8}
-    count: 8
-    exclusionRadius: 12
   arenaSize: 100
   edgeMargin: 4
   barnCenter: {x: 50, y: 0, z: 50}
+  clearRadius: 15
+  hayBaleCount: 20
+  fenceCount: 30
+  troughCount: 8
+  navMeshSurface: {fileID: 442071553}
 --- !u!4 &299250545
 Transform:
   m_ObjectHideFlags: 0
@@ -255,7 +247,7 @@ TerrainCollider:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 512
   m_ExcludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -339,8 +331,8 @@ MonoBehaviour:
   m_Center: {x: 0, y: 2, z: 0}
   m_LayerMask:
     serializedVersion: 2
-    m_Bits: 4294967295
-  m_UseGeometry: 0
+    m_Bits: 512
+  m_UseGeometry: 1
   m_DefaultArea: 0
   m_GenerateLinks: 0
   m_IgnoreNavMeshAgent: 1
@@ -349,8 +341,8 @@ MonoBehaviour:
   m_TileSize: 256
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.16666667
-  m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: a7b49c6ba5e1ae64a9deb663f59df490, type: 2}
+  m_MinRegionArea: 0.1
+  m_NavMeshData: {fileID: 0}
   m_BuildHeightMesh: 0
 --- !u!1 &469365551
 GameObject:
@@ -842,6 +834,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ca5190c003273743ad9c6543dcdece4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BarnBuilder
+  barnCenter: {x: 50, y: 0, z: 50}
 --- !u!4 &1353433241
 Transform:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+// EnemyBase.cs — Scripts/Enemies/
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -6,68 +7,67 @@ using UnityEngine.AI;
 public class EnemyBase : MonoBehaviour
 {
     [Header("Stats")]
-    public float maxHealth    = 30f;
-    public float moveSpeed    = 3.5f;
-    public float contactDamage = 10f;
-    public int   xpValue      = 1;
+    public float maxHealth = 30f;
+    public float moveSpeed = 3.5f;
+    public float contactDamage = 8f;
+    public int xpValue = 1;
 
-    [Header("Pooling — drag this object's source prefab here")]
+    [Header("Pooling")]
     public GameObject prefabKey;
 
-    protected float     _health;
+    // Public state
+    public bool IsAlive { get; private set; }
+
     protected Transform _player;
     protected NavMeshAgent _agent;
-    protected bool _dead;
+    float _health;
 
+    // ── Called by WaveSpawner every time this is pulled from pool ──
     public virtual void Init(Transform player)
     {
         _player = player;
         _health = maxHealth;
-        _dead   = false;
-        _agent  = GetComponent<NavMeshAgent>();
-        _agent.speed   = moveSpeed;
+        IsAlive = true;
+
+        _agent = GetComponent<NavMeshAgent>();
         _agent.enabled = true;
+        _agent.speed = moveSpeed;
+        _agent.ResetPath();
     }
 
     void Update()
     {
-        if (_dead || _player == null) return;
+        if (!IsAlive || _player == null) return;
         _agent.SetDestination(_player.position);
     }
 
     public virtual void TakeDamage(float amount)
     {
-        if (_dead) return;
+        if (!IsAlive) return;
         _health -= amount;
-        StartCoroutine(DamageFlash());
         if (_health <= 0f) Die();
     }
 
     protected virtual void Die()
     {
-        _dead          = true;
+        IsAlive = false;
         _agent.enabled = false;
 
         GameManager.Instance.AddXP(xpValue);
-        // TODO: PoolManager.Instance.Get(xpGemPrefab, transform.position, Quaternion.identity)
+        CameraFollow.Instance?.AddTrauma(0.1f);
 
-        StartCoroutine(ReturnAfterDelay(0.05f));
+        StartCoroutine(ReturnToPool());
     }
 
-    IEnumerator ReturnAfterDelay(float delay)
+    IEnumerator ReturnToPool()
     {
-        yield return new WaitForSeconds(delay);
+        yield return null; // wait one frame so collisions settle
         PoolManager.Instance.Return(prefabKey, gameObject);
-    }
-
-    // Override this in subclasses to swap material / set shader property
-    protected virtual IEnumerator DamageFlash()
-    {
-        yield return new WaitForSeconds(0.08f);
     }
 
     void OnTriggerStay(Collider other)
     {
+        if (!IsAlive) return;
         if (other.CompareTag("Player"))
             other.GetComponent<PlayerController>()?.TakeDamage(contactDamage * Time.deltaTime);
     }

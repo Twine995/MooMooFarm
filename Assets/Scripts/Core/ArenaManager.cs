@@ -1,33 +1,49 @@
-// ArenaManager.cs — place in Scripts/Core/
+// ArenaManager.cs — Scripts/Core/
 using UnityEngine;
 
 public class ArenaManager : MonoBehaviour
 {
-    [Header("Must match your Terrain size")]
     public float arenaSize = 100f;
     public float wallHeight = 6f;
-    public float wallThickness = 2f;
+    public float wallThickness = 1f;
 
     void Start()
     {
-        SpawnWall(new Vector3(arenaSize / 2f, wallHeight / 2f, 0f),
-                  new Vector3(wallThickness, wallHeight, arenaSize));            // East
-        SpawnWall(new Vector3(-wallThickness / 2f, wallHeight / 2f, 0f),
-                  new Vector3(wallThickness, wallHeight, arenaSize));           // West
-        SpawnWall(new Vector3(arenaSize / 2f, wallHeight / 2f, arenaSize),
-                  new Vector3(arenaSize, wallHeight, wallThickness));           // North
-        SpawnWall(new Vector3(arenaSize / 2f, wallHeight / 2f, -wallThickness / 2f),
-                  new Vector3(arenaSize, wallHeight, wallThickness));           // South
+        float s = arenaSize;
+        float h = wallHeight;
+        float t = wallThickness;
+
+        // Position is the CENTER of each wall
+        // South edge (Z = 0)
+        MakeWall("Wall_South",
+            new Vector3(s / 2f, h / 2f, -t / 2f),
+            new Vector3(s, h, t));
+
+        // North edge (Z = 100)
+        MakeWall("Wall_North",
+            new Vector3(s / 2f, h / 2f, s + t / 2f),
+            new Vector3(s, h, t));
+
+        // West edge (X = 0)
+        MakeWall("Wall_West",
+            new Vector3(-t / 2f, h / 2f, s / 2f),
+            new Vector3(t, h, s));
+
+        // East edge (X = 100)
+        MakeWall("Wall_East",
+            new Vector3(s + t / 2f, h / 2f, s / 2f),
+            new Vector3(t, h, s));
     }
 
-    void SpawnWall(Vector3 center, Vector3 size)
+    void MakeWall(string wallName, Vector3 center, Vector3 size)
     {
-        var go = new GameObject("Wall");
-        var col = go.AddComponent<BoxCollider>();
-        col.size = Vector3.one;
-        go.transform.position = center;
-        go.transform.localScale = size;
+        var go = new GameObject(wallName);
         go.transform.parent = transform;
+        go.transform.position = center;
+        go.transform.localScale = size;        // scale sets the visual size
         go.layer = LayerMask.NameToLayer("Environment");
+
+        var col = go.AddComponent<BoxCollider>();
+        col.size = Vector3.one;                   // size 1,1,1 × localScale = correct size
     }
 }

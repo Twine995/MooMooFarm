@@ -13,5 +13,8 @@ MonoBehaviour:
   m_Name: Wave_1
   m_EditorClassIdentifier: Assembly-CSharp::WaveConfig
   triggerAtSecond: 5
-  entries: []
+  entries:
+  - enemyPrefab: {fileID: 8341927333309799244, guid: 03bdb8bb27629c042b206c5b7d8ca417, type: 3}
+    count: 5
+    spawnInterval: 2
   isBossWave: 0
